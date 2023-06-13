@@ -23,7 +23,5 @@
   "include": [
     "src"
   ],
-  "types" : [
-    "kakao.maps.d.ts"
-  ]
+  "types" : ["kakao.maps.d.ts"]
 }

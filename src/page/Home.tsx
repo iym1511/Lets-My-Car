@@ -5,9 +5,8 @@ const Home = () => {
   
   return (  
     <div>
-      <p>안녕하세요</p>
-      {/* <Maps /> */}
-      <NaverApi />
+      <Maps />
+      {/* <NaverApi /> */}
     </div>
   );
 }
