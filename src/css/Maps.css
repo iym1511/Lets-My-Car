@@ -5,7 +5,6 @@
 .searchTitle{
   font-size: 20px;
   font-weight: 400;
-
 }
 
 .searchNumBox{
@@ -19,7 +18,8 @@
   display: flex;
   margin-left: 10px;
   margin-bottom: 10px;
-  font-weight: 400;
+  font-weight: 700;
+  color: rgb(0, 96, 232);
 }
 .searchAddress{
   font-size: 15px;

@@ -30,11 +30,12 @@ const Maps = () => {
   }, []);
 
 
-  const searchPlaces = () => {
+  const searchPlaces = (e:React.FormEvent<HTMLFormElement>) => {
     if (!searchKeyword.trim()) {
       alert("키워드를 입력해주세요!");
       return;
     }
+    e.preventDefault();
 
     const ps = new window.kakao.maps.services.Places();
     ps.keywordSearch(searchKeyword, placesSearchCB);
@@ -171,13 +172,16 @@ const Maps = () => {
 
   const getListItem = (index: number, place: any) => {
     const el = document.createElement("div");
+    const truncate = (str:string, n:number) => {
+      return str?.length > n ? str.substr(0, n - 1) + "..." : str;
+  };
 
     // 검색 목록
     let itemStr = `
       <div class="searchListBox">
       <div class="searchNumBox">
         <h5 class="markerbg marker_${index + 1} searchNumber">${index + 1}. &nbsp;</h5>
-        <h5 class="searchTitle">${place.place_name}</h5>
+        <h5 class="searchTitle">${truncate(place.place_name, 19)}</h5>
       </div>
         <div class="searchLotNumBox">
           <p class="searchAddress">${place.address_name}</p>
@@ -203,21 +207,27 @@ const Maps = () => {
   return (  
     <div>
       <MapBox>
-        <Map id="map"></Map>
         <Menu id="menu_wrap">
-          <div>
-            <input
-              type="text"
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-            />
-            <button onClick={searchPlaces}>Search</button>
-          </div>
-          <SearchList id="placesList">
-
-          </SearchList>
+          <SearchBarBox>
+          <MapLogo src={require("../img/kakaomap_logo.png")} alt="" />
+            <SearchBar>
+              <form onSubmit={searchPlaces}>
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                placeholder="장소, 주소 검색"
+              />
+              <button>
+                <img src={require("../img/search-icon.png")}/>
+              </button>
+              </form>
+            </SearchBar>
+          </SearchBarBox>
+          <SearchList id="placesList"></SearchList>
           <SearchPageNum id="pagination"></SearchPageNum>
         </Menu>
+        <Map id="map"></Map>
     </MapBox>
   </div>
   );
@@ -238,25 +248,65 @@ const MapBox = styled.div`
 
 const SearchList = styled.div`
   margin-top: 50px;
-  width: 100%;
+  width: 400px;
   height: 80vh;
   overflow: scroll; 
 `
 
 const Menu = styled.div`
-  width: 35%;
+position: relative;
+  width: 500px;
   border: 1px solid gray;
   div{
     margin: auto;
   }
   input{
-    margin-top: 20px;
-    width: 12vw;
+    width: 278px;
     height: 40px;
+    border:none;
+    padding-left: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 4px;
+    margin-bottom: 4px;
   }
+  input:focus { outline: none; }
   button{
-    height: 45px;
+    background-color: rgba( 255, 255, 255, 0 );
+    border: none;
+    cursor: pointer;
+    background-image: url("../img/search-icon.png");
   }
+  img{
+    width: 30px;
+    position: relative;
+    left: 10px;
+    top: 8px;
+  }
+`
+const MapLogo = styled.img`
+  width: 120px !important;
+  height: 30px;
+  object-fit: none;
+  object-position: 10px 5px;
+  margin-left: 10px;
+`
+
+const SearchBar = styled.div`
+  width: 350px;
+  margin-top: 20px !important;
+  background-color: white;
+  border-radius: 4px;
+  /* box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 2px 2px; */
+  -webkit-box-shadow: 0 2px 1px 0 rgba(0,0,0,.15);
+  -moz-box-shadow: 0 2px 1px 0 rgba(0,0,0,.15);
+  box-shadow: 0 2px 1px 0 rgba(0,0,0,.15);
+`
+
+const SearchBarBox = styled.div`
+  border: 1px solid #258fff;
+  background-color: #258fff;
+  height: 130px;
 `
 
 const SearchPageNum = styled.div`
@@ -266,5 +316,6 @@ const SearchPageNum = styled.div`
     color: black;
     text-decoration:none;
     margin: auto;
+    cursor: pointer;
   }
 `
