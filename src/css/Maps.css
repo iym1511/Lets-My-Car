@@ -1,3 +1,45 @@
 .searchListBox{
   cursor: pointer;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.381);
+}
+.searchTitle{
+  font-size: 20px;
+  font-weight: 400;
+
+}
+
+.searchNumBox{
+  display: flex;
+  height: 70px;
+  margin-top: -20px !important;
+}
+
+.searchNumber{
+  font-size: 20px;
+  display: flex;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+.searchAddress{
+  font-size: 15px;
+}
+
+.searchLotNumBox{
+  display: flex;
+  flex-direction: column;
+}
+.searchLotNumBox > p{
+  margin-left: 10px;
+  margin-top: 0px;
+  margin-bottom: 5px;
+}
+.searchNum{
+  color: #288756;
+  font-size: 15px;
+}
+
+.searchLotNum{
+  color: gray;
+  font-size: 13px;
 }

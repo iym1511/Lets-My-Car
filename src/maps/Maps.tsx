@@ -61,7 +61,7 @@ const Maps = () => {
 
     places.forEach((place, index) => {
       const placePosition = new window.kakao.maps.LatLng(place.y, place.x);
-      const marker = addMarker(placePosition, index, place);
+      const marker = addMarker(placePosition, index);
       const itemEl = getListItem(index, place);
 
       bounds.extend(placePosition);
@@ -88,7 +88,7 @@ const Maps = () => {
     map.setBounds(bounds);
   };
 
-  const addMarker = (position: any, idx: number, place: any) => {
+  const addMarker = (position: any, idx: number) => {
     const imageSrc =
       "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png";
     const imageSize = new window.kakao.maps.Size(36, 37);
@@ -167,25 +167,28 @@ const Maps = () => {
     }
   };
 
+
+
   const getListItem = (index: number, place: any) => {
     const el = document.createElement("div");
 
-    const border = styled.div`
-    width: 500px;
-    `
     // 검색 목록
     let itemStr = `
-      <span class="markerbg marker_${index + 1}">${index + 1}</span>
       <div class="searchListBox">
-        <h5>${place.place_name}</h5>
-        <span>${place.address_name}</span>
-        <span class="tel">${place.phone}</span>
+      <div class="searchNumBox">
+        <h5 class="markerbg marker_${index + 1} searchNumber">${index + 1}. &nbsp;</h5>
+        <h5 class="searchTitle">${place.place_name}</h5>
+      </div>
+        <div class="searchLotNumBox">
+          <p class="searchAddress">${place.address_name}</p>
+          ${place.road_address_name !== "" ? `<p class="searchLotNum"><span>(지번)&nbsp;</span>${place.road_address_name}</p>` : ""}
+          ${place.phone !== "" ? `<p class="searchNum">${place.phone}</p>` : ""}
+        </div>
       </div>`;
   
     el.innerHTML = itemStr;
     el.className = "item";
-    console.log(place);
-    
+    console.log(place)
     
     // 장소 항목 클릭 이벤트 추가
     el.addEventListener("click", () => {
@@ -202,16 +205,18 @@ const Maps = () => {
       <MapBox>
         <Map id="map"></Map>
         <Menu id="menu_wrap">
-        <input
+          <div>
+            <input
               type="text"
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
             />
             <button onClick={searchPlaces}>Search</button>
+          </div>
           <SearchList id="placesList">
 
           </SearchList>
-          <div id="pagination"></div>
+          <SearchPageNum id="pagination"></SearchPageNum>
         </Menu>
     </MapBox>
   </div>
@@ -219,7 +224,6 @@ const Maps = () => {
 }
 
 export default Maps;
-
 
 const Map = styled.div`
   display: flex;
@@ -236,13 +240,15 @@ const SearchList = styled.div`
   margin-top: 50px;
   width: 100%;
   height: 80vh;
-  overflow: scroll;
-  
+  overflow: scroll; 
 `
 
 const Menu = styled.div`
-  border: 1px solid red;
-  width: 25%;
+  width: 35%;
+  border: 1px solid gray;
+  div{
+    margin: auto;
+  }
   input{
     margin-top: 20px;
     width: 12vw;
@@ -250,5 +256,15 @@ const Menu = styled.div`
   }
   button{
     height: 45px;
+  }
+`
+
+const SearchPageNum = styled.div`
+  letter-spacing: 10px;
+  text-align: center;
+  a{
+    color: black;
+    text-decoration:none;
+    margin: auto;
   }
 `
