@@ -1,10 +1,14 @@
+.searchText{
+  position: relative;
+}
+
 .searchListBox{
-  cursor: pointer;
   border-bottom: 1px solid rgba(128, 128, 128, 0.381);
 }
 .searchTitle{
   font-size: 20px;
   font-weight: 400;
+  cursor: pointer;
 }
 
 .searchNumBox{
@@ -42,4 +46,22 @@
 .searchLotNum{
   color: gray;
   font-size: 13px;
+}
+
+.searchStartBox{
+  display: flex;
+}
+.searchStartBox > p:first-child {
+  color: #003fab;
+  margin-top: 0px;
+  margin-bottom: 5px;
+  margin-left: -183px;
+  cursor: pointer;
+}
+.searchStartBox > p:last-child {
+  color: rgb(172, 0, 0);
+  margin-top: 0px;
+  margin-bottom: 5px;
+  margin-left: 10px;
+  cursor: pointer;
 }
