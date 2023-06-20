@@ -4,24 +4,35 @@ import "../css/Maps.css";
 import startMarkerImage from "../img/start.png";
 import endMarkerImage from "../img/end.png";
 
+let searchHistory: string[] = [];
+
 const Maps = () => {
   const [map, setMap] = useState<any>();
   const [markers, setMarkers] = useState<any[]>([]);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const infowindowRef = useRef<any>(null);
+
+  // 목적지 장소명
   const [start, setStart] = useState<string>();
   const [end, setEnd] = useState<string>();
+  // 목적지 마커
   const [startMarker, setStartMarker] = useState<any>();
   const [endMarker, setEndMarker] = useState<any>();
+  // 목적지 좌표
   const [startplaceX, setStartplaceX] = useState<number | undefined>();
   const [startplaceY, setStartplaceY] = useState<number | undefined>();
   const [endplaceX, setEndplaceX] = useState<number | undefined>();
   const [endplaceY, setEndplaceY] = useState<number | undefined>();
 
+  // searchPlaces 가 눌릴때 searchKeyword 값 저장해서 검색기록 남기기 
+  const [isShow, setIsShow] = useState(false);
+  const [searchArray, setSearchArray] = useState<any>();
+
   useEffect(() => {
+    const mapCenter = new window.kakao.maps.LatLng(33.45042, 126.57091);
     const mapOption = {
-      center: new window.kakao.maps.LatLng(33.450701, 126.570667),
-      level: 8,
+      center: mapCenter,
+      level: 5,
     };
 
     const map = new window.kakao.maps.Map(
@@ -57,26 +68,24 @@ const Maps = () => {
       position: startPosition,
       image: startImage,
     });
-        // 도착 마커 설정
-        const endSrc = endMarkerImage;
-        const endSize = new window.kakao.maps.Size(40, 45);
-        const endOption = {
-          offset: new window.kakao.maps.Point(15, 43),
-        };
-        const endPosition = new window.kakao.maps.LatLng(
-          endplaceY,
-          endplaceX
-        );
-        const endImage = new window.kakao.maps.MarkerImage(
-          endSrc,
-          endSize,
-          endOption
-        );
-        const endMarker = new window.kakao.maps.Marker({
-          map: map,
-          position: endPosition,
-          image: endImage,
-        });
+
+    // 도착 마커 설정
+    const endSrc = endMarkerImage;
+    const endSize = new window.kakao.maps.Size(40, 45);
+    const endOption = {
+      offset: new window.kakao.maps.Point(15, 43),
+    };
+    const endPosition = new window.kakao.maps.LatLng(endplaceY, endplaceX);
+    const endImage = new window.kakao.maps.MarkerImage(
+      endSrc,
+      endSize,
+      endOption
+    );
+    const endMarker = new window.kakao.maps.Marker({
+      map: map,
+      position: endPosition,
+      image: endImage,
+    });
   }, []);
 
   useEffect(() => {
@@ -133,6 +142,9 @@ const Maps = () => {
     setEndMarker(newEndMarker);
   }, [startplaceX, startplaceY, endplaceX, endplaceY]);
 
+  const sessionArray: string | null | any = sessionStorage.getItem('searchArray')
+  console.log(searchArray)
+
   const searchPlaces = (e: React.FormEvent<HTMLFormElement>) => {
     if (!searchKeyword.trim()) {
       alert("키워드를 입력해주세요!");
@@ -148,6 +160,18 @@ const Maps = () => {
     if (status === window.kakao.maps.services.Status.OK) {
       displayPlaces(data);
       displayPagination(pagination);
+    // 최근 검색어 저장
+    let searchArray:string[] = searchHistory.concat(searchKeyword);
+    searchHistory = searchArray;
+    let sessionSearchArray:string[] | any = JSON.stringify(searchArray);
+    sessionStorage.setItem('searchArray', sessionSearchArray);
+    const sessionSearchArrays = JSON.parse(sessionArray)
+    const SearchBoolean = sessionSearchArrays.some((data:string) => data == searchKeyword);
+    if(SearchBoolean) {
+      setSearchArray(sessionSearchArrays.filter((data: string) => data !== searchKeyword))
+    }
+    // setSearchArray(sessionSearchArray)
+
     } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
       alert("검색 결과가 존재하지 않습니다.");
     } else if (status === window.kakao.maps.services.Status.ERROR) {
@@ -233,7 +257,7 @@ const Maps = () => {
     // 마커에 마우스를 올리면 나타나는 정보
     const content = `
     <div>
-      <div class="searchText" style="padding:5px;z-index:1;margin:auto; width:"200px">
+      <div class="searchText" style="padding:5px;z-index:1;width:"200px";>
         ${title}
       </div>
     </div>
@@ -349,6 +373,7 @@ const Maps = () => {
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   placeholder="장소, 주소 검색"
                 />
+                <div style={{position:"absolute",display:"flex", alignContent:"center"}}>{searchArray}</div>
                 <button>
                   <img src={require("../img/search-icon.png")} />
                 </button>

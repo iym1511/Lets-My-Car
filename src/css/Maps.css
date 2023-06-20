@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'S-CoreDream-3Light';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .searchText{
   position: relative;
 }
@@ -9,6 +16,9 @@
   font-size: 20px;
   font-weight: 400;
   cursor: pointer;
+}
+.searchTitle:hover{
+  text-decoration: underline;
 }
 
 .searchNumBox{
@@ -57,6 +67,7 @@
   margin-bottom: 5px;
   margin-left: -183px;
   cursor: pointer;
+  font-family: 'S-CoreDream-3Light';
 }
 .searchStartBox > p:last-child {
   color: rgb(172, 0, 0);
@@ -64,4 +75,5 @@
   margin-bottom: 5px;
   margin-left: 10px;
   cursor: pointer;
+  font-family: 'S-CoreDream-3Light';
 }
