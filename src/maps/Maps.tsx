@@ -28,7 +28,7 @@ const Maps = () => {
   const [endplaceX, setEndplaceX] = useState<number | undefined>();
   const [endplaceY, setEndplaceY] = useState<number | undefined>();
 
-  // searchPlaces 가 눌릴때 searchKeyword 값 저장해서 검색기록 남기기
+  // 최근 목록을 펼치기/접기 를 위한 boolean값
   const [focus, setFocus] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
@@ -38,25 +38,29 @@ const Maps = () => {
   const searchRef = useRef(null);
   const searchListRef = useRef(null);
 
-
-  // 
+  // 영역 밖클릭 이벤트
   useEffect(() => {
     const handleDocumentClick = (event: MouseEvent) => {
-      if ( searchRef.current && !((searchRef.current as HTMLElement).contains(event.target as Node)) ) {
-        if( searchListRef.current && !((searchListRef.current as HTMLElement).contains(event.target as Node))){
+      if (
+        searchRef.current &&
+        !(searchRef.current as HTMLElement).contains(event.target as Node)
+      ) {
+        if (
+          searchListRef.current &&
+          !(searchListRef.current as HTMLElement).contains(event.target as Node)
+        ) {
           // 외부 영역 클릭 시 onBlur 이벤트 처리
           setFocus(false);
         }
       }
     };
-    document.addEventListener('click', handleDocumentClick);
-    
+    document.addEventListener("click", handleDocumentClick);
+
     // 컴포넌트가 언마운트될 때 등록한 이벤트 리스너를 제거하기 위해 사용
     return () => {
-      document.removeEventListener('click', handleDocumentClick);
+      document.removeEventListener("click", handleDocumentClick);
     };
   }, []);
-
 
   useEffect(() => {
     const mapCenter = new window.kakao.maps.LatLng(33.45042, 126.57091);
@@ -176,7 +180,6 @@ const Maps = () => {
     sessionStorage.getItem("searchArray") || "[]"
   );
 
-
   const searchPlaces = (e: React.FormEvent<HTMLFormElement>) => {
     if (!searchKeyword.trim()) {
       alert("키워드를 입력해주세요!");
@@ -272,7 +275,7 @@ const Maps = () => {
   };
 
   const displayInfowindow = (marker: any, title: string) => {
-    if (!infowindowRef.current ) {
+    if (!infowindowRef.current) {
       infowindowRef.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
     }
 
@@ -395,19 +398,18 @@ const Maps = () => {
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   placeholder="장소, 주소 검색"
                   onFocus={() => setFocus(true)}
-                  // onBlur={() => setFocus(false)}
                   ref={searchRef}
                 />
                 <ResentSearchbox isActive={focus}>
-                <p onClick={() => dispatch(resentAllDelete())}>
-                  최근기록 전체삭제
-                </p>
-                {resentSearch.map((data, i) => (
+                  <p onClick={() => dispatch(resentAllDelete())}>
+                    최근기록 전체삭제
+                  </p>
+                  {resentSearch.map((data, i) => (
                     <ResentSearch key={i}>
                       <p>{data}</p>
                       <p onClick={() => dispatch(resentDelete(data))}>x</p>
                     </ResentSearch>
-                ))}
+                  ))}
                 </ResentSearchbox>
                 <button ref={searchListRef}>
                   <img src={require("../img/search-icon.png")} />
@@ -538,24 +540,25 @@ const SearchEndbox = styled.div`
   z-index: 100;
 `;
 
-const ResentSearchbox = styled.div<{isActive : boolean}>`
+const ResentSearchbox = styled.div<{ isActive: boolean }>`
   position: absolute;
   background-color: white;
   width: 350px;
   margin-top: 10px !important;
   border-radius: 5px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
-  display: ${({isActive}) => (isActive ? '' : 'none')};
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  display: ${({ isActive }) => (isActive ? "" : "none")};
 `;
 
 const ResentSearch = styled.div`
   display: flex;
-  justify-content: space-between;;
+  justify-content: space-between;
   padding-right: 30px;
   padding-left: 15px;
   /* border: 1px solid gray; */
   color: gray;
-  p{
+  p {
     cursor: pointer;
   }
 `;
