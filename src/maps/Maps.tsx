@@ -3,8 +3,12 @@ import styled from "styled-components";
 import "../css/Maps.css";
 import startMarkerImage from "../img/start.png";
 import endMarkerImage from "../img/end.png";
-
-let searchHistory: string[] = [];
+import { useAppDispatch, useAppSelector } from "../hooks/Hooks";
+import {
+  resentAllDelete,
+  resentDelete,
+  resentPush,
+} from "../module/ResentSearch";
 
 const Maps = () => {
   const [map, setMap] = useState<any>();
@@ -24,9 +28,35 @@ const Maps = () => {
   const [endplaceX, setEndplaceX] = useState<number | undefined>();
   const [endplaceY, setEndplaceY] = useState<number | undefined>();
 
-  // searchPlaces 가 눌릴때 searchKeyword 값 저장해서 검색기록 남기기 
-  const [isShow, setIsShow] = useState(false);
-  const [searchArray, setSearchArray] = useState<any>();
+  // searchPlaces 가 눌릴때 searchKeyword 값 저장해서 검색기록 남기기
+  const [focus, setFocus] = useState<boolean>(false);
+
+  const dispatch = useAppDispatch();
+  const resentSearch = useAppSelector((state) => state.resent);
+
+  // 검색영역 ref
+  const searchRef = useRef(null);
+  const searchListRef = useRef(null);
+
+
+  // 
+  useEffect(() => {
+    const handleDocumentClick = (event: MouseEvent) => {
+      if ( searchRef.current && !((searchRef.current as HTMLElement).contains(event.target as Node)) ) {
+        if( searchListRef.current && !((searchListRef.current as HTMLElement).contains(event.target as Node))){
+          // 외부 영역 클릭 시 onBlur 이벤트 처리
+          setFocus(false);
+        }
+      }
+    };
+    document.addEventListener('click', handleDocumentClick);
+    
+    // 컴포넌트가 언마운트될 때 등록한 이벤트 리스너를 제거하기 위해 사용
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, []);
+
 
   useEffect(() => {
     const mapCenter = new window.kakao.maps.LatLng(33.45042, 126.57091);
@@ -142,8 +172,10 @@ const Maps = () => {
     setEndMarker(newEndMarker);
   }, [startplaceX, startplaceY, endplaceX, endplaceY]);
 
-  const sessionArray: string | null | any = sessionStorage.getItem('searchArray')
-  console.log(searchArray)
+  const sessionArray: string | null = JSON.parse(
+    sessionStorage.getItem("searchArray") || "[]"
+  );
+
 
   const searchPlaces = (e: React.FormEvent<HTMLFormElement>) => {
     if (!searchKeyword.trim()) {
@@ -160,18 +192,8 @@ const Maps = () => {
     if (status === window.kakao.maps.services.Status.OK) {
       displayPlaces(data);
       displayPagination(pagination);
-    // 최근 검색어 저장
-    let searchArray:string[] = searchHistory.concat(searchKeyword);
-    searchHistory = searchArray;
-    let sessionSearchArray:string[] | any = JSON.stringify(searchArray);
-    sessionStorage.setItem('searchArray', sessionSearchArray);
-    const sessionSearchArrays = JSON.parse(sessionArray)
-    const SearchBoolean = sessionSearchArrays.some((data:string) => data == searchKeyword);
-    if(SearchBoolean) {
-      setSearchArray(sessionSearchArrays.filter((data: string) => data !== searchKeyword))
-    }
-    // setSearchArray(sessionSearchArray)
-
+      // 최근 검색어 저장
+      dispatch(resentPush(searchKeyword));
     } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
       alert("검색 결과가 존재하지 않습니다.");
     } else if (status === window.kakao.maps.services.Status.ERROR) {
@@ -250,7 +272,7 @@ const Maps = () => {
   };
 
   const displayInfowindow = (marker: any, title: string) => {
-    if (!infowindowRef.current) {
+    if (!infowindowRef.current ) {
       infowindowRef.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
     }
 
@@ -311,7 +333,7 @@ const Maps = () => {
       <h5 class="searchTitle">${truncate(place.place_name, 17)}</h5>
       </div>
         <div class="searchLotNumBox">
-          <p class="searchAddress">${place.address_name}</p>
+          <p class="searchAydress">${place.address_name}</p>
           ${
             place.road_address_name !== ""
               ? `<p class="searchLotNum"><span>(지번)&nbsp;</span>${place.road_address_name}</p>`
@@ -365,16 +387,29 @@ const Maps = () => {
         <Menu id="menu_wrap">
           <SearchBarBox>
             <MapLogo src={require("../img/kakaomap_logo.png")} alt="" />
-            <SearchBar>
+            <SearchBar ref={searchListRef}>
               <form onSubmit={searchPlaces}>
                 <input
                   type="text"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   placeholder="장소, 주소 검색"
+                  onFocus={() => setFocus(true)}
+                  // onBlur={() => setFocus(false)}
+                  ref={searchRef}
                 />
-                <div style={{position:"absolute",display:"flex", alignContent:"center"}}>{searchArray}</div>
-                <button>
+                <ResentSearchbox isActive={focus}>
+                <p onClick={() => dispatch(resentAllDelete())}>
+                  최근기록 전체삭제
+                </p>
+                {resentSearch.map((data, i) => (
+                    <ResentSearch key={i}>
+                      <p>{data}</p>
+                      <p onClick={() => dispatch(resentDelete(data))}>x</p>
+                    </ResentSearch>
+                ))}
+                </ResentSearchbox>
+                <button ref={searchListRef}>
                   <img src={require("../img/search-icon.png")} />
                 </button>
               </form>
@@ -501,4 +536,26 @@ const SearchEndbox = styled.div`
   height: 40px;
   background-color: antiquewhite;
   z-index: 100;
+`;
+
+const ResentSearchbox = styled.div<{isActive : boolean}>`
+  position: absolute;
+  background-color: white;
+  width: 350px;
+  margin-top: 10px !important;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  display: ${({isActive}) => (isActive ? '' : 'none')};
+`;
+
+const ResentSearch = styled.div`
+  display: flex;
+  justify-content: space-between;;
+  padding-right: 30px;
+  padding-left: 15px;
+  /* border: 1px solid gray; */
+  color: gray;
+  p{
+    cursor: pointer;
+  }
 `;
