@@ -30,6 +30,8 @@ const Maps = () => {
 
   // 최근 목록을 펼치기/접기 를 위한 boolean값
   const [focus, setFocus] = useState<boolean>(false);
+  // 더보기
+  const [recentDetail, setRecentDetail] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
   const resentSearch = useAppSelector((state) => state.resent);
@@ -404,12 +406,23 @@ const Maps = () => {
                   <p onClick={() => dispatch(resentAllDelete())}>
                     최근기록 전체삭제
                   </p>
-                  {resentSearch.map((data, i) => (
+                  {recentDetail ? (
+                  resentSearch.slice(0,9).map((data, i) => (
                     <ResentSearch key={i}>
                       <p>{data}</p>
                       <p onClick={() => dispatch(resentDelete(data))}>x</p>
                     </ResentSearch>
-                  ))}
+                  ))
+                  ) : (
+                    resentSearch.slice(0,5).map((data, i) => (
+                      <ResentSearch key={i}>
+                        <p>{data}</p>
+                        <p onClick={() => dispatch(resentDelete(data))}>x</p>
+                      </ResentSearch>
+                    ))
+                  )
+                  }
+                  <button type="button" onClick={() => setRecentDetail(!recentDetail)}>더보기</button>
                 </ResentSearchbox>
                 <button ref={searchListRef}>
                   <img src={require("../img/search-icon.png")} />
@@ -549,6 +562,9 @@ const ResentSearchbox = styled.div<{ isActive: boolean }>`
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
     rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
   display: ${({ isActive }) => (isActive ? "" : "none")};
+  button{
+    color: gray;
+  }
 `;
 
 const ResentSearch = styled.div`
