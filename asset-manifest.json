@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/Lets-My-Car/static/css/main.e5bb81c8.css",
-    "main.js": "/Lets-My-Car/static/js/main.ac0ee153.js",
+    "main.js": "/Lets-My-Car/static/js/main.fc8fb445.js",
     "static/js/787.3b541847.chunk.js": "/Lets-My-Car/static/js/787.3b541847.chunk.js",
     "static/media/end.png": "/Lets-My-Car/static/media/end.abf81183fbc4600ec275.png",
     "static/media/start.png": "/Lets-My-Car/static/media/start.7c4c071a4676659b887c.png",
     "index.html": "/Lets-My-Car/index.html",
     "main.e5bb81c8.css.map": "/Lets-My-Car/static/css/main.e5bb81c8.css.map",
-    "main.ac0ee153.js.map": "/Lets-My-Car/static/js/main.ac0ee153.js.map",
+    "main.fc8fb445.js.map": "/Lets-My-Car/static/js/main.fc8fb445.js.map",
     "787.3b541847.chunk.js.map": "/Lets-My-Car/static/js/787.3b541847.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e5bb81c8.css",
-    "static/js/main.ac0ee153.js"
+    "static/js/main.fc8fb445.js"
   ]
 }
