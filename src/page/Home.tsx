@@ -1,5 +1,4 @@
 import Maps from "../maps/Maps";
-import NaverApi from "../maps/NaverApi";
 
 const Home = () => {
   
