@@ -610,7 +610,7 @@ const ResentSearch = styled.div`
   img {
     width: 20px;
     height: 20px;
-    padding-bottom:4px;
+    padding-bottom:px;
     margin-right: 20px;
   }
 `;
