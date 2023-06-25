@@ -403,26 +403,31 @@ const Maps = () => {
                   ref={searchRef}
                 />
                 <ResentSearchbox isActive={focus}>
-                  <p onClick={() => dispatch(resentAllDelete())}>
-                    최근기록 전체삭제
+                  <p className="ResentAlldelete" >
+                      히스토리
                   </p>
                   {recentDetail ? (
                   resentSearch.slice(0,9).map((data, i) => (
                     <ResentSearch key={i}>
-                      <p>{data}</p>
+                      
+                      <p><img src={require("../img/gps.png")} alt="" />{data}</p>
                       <p onClick={() => dispatch(resentDelete(data))}>x</p>
                     </ResentSearch>
                   ))
                   ) : (
                     resentSearch.slice(0,5).map((data, i) => (
                       <ResentSearch key={i}>
-                        <p>{data}</p>
+                      
+                        <p><img src={require("../img/gps.png")} alt="" />{data}</p>
                         <p onClick={() => dispatch(resentDelete(data))}>x</p>
                       </ResentSearch>
                     ))
                   )
                   }
-                  <button type="button" onClick={() => setRecentDetail(!recentDetail)}>더보기</button>
+                  <ResentDetailbox>
+                    <button type="button" onClick={() => setRecentDetail(!recentDetail)}>더보기</button>
+                    <span onClick={() => dispatch(resentAllDelete())}>최근기록 전체삭제</span>
+                  </ResentDetailbox>
                 </ResentSearchbox>
                 <button ref={searchListRef}>
                   <img src={require("../img/search-icon.png")} />
@@ -564,17 +569,49 @@ const ResentSearchbox = styled.div<{ isActive: boolean }>`
   display: ${({ isActive }) => (isActive ? "" : "none")};
   button{
     color: gray;
+    margin-left: 10px;
+    margin-bottom: 5px;
+  }
+  .ResentAlldelete{
+    width: 115px;
+    margin-left: 15px;
+    color: gray;
+    font-size: 15px;
+    margin-bottom: -10px;
+  }
+  span{
+    color: gray;
+    font-size: 13px;
+    margin-left: 170px;
+    margin-bottom: 5px;
+    cursor: pointer;
   }
 `;
+
+const ResentDetailbox = styled.div`
+  height: 24px;
+  padding-top: 5px;
+  background-color: #f5f5f5;
+  margin-top: 20px !important;
+`
 
 const ResentSearch = styled.div`
   display: flex;
   justify-content: space-between;
   padding-right: 30px;
   padding-left: 15px;
-  /* border: 1px solid gray; */
-  color: gray;
+  height: 35px;
   p {
     cursor: pointer;
   }
+  p:nth-child(2) {
+    margin-top: 25px;
+  }
+  img {
+    width: 20px;
+    height: 20px;
+    padding-bottom:4px;
+    margin-right: 20px;
+  }
 `;
+
