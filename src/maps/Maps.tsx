@@ -53,6 +53,7 @@ const Maps = () => {
         ) {
           // 외부 영역 클릭 시 onBlur 이벤트 처리
           setFocus(false);
+          setRecentDetail(false);
         }
       }
     };
@@ -409,7 +410,6 @@ const Maps = () => {
                   {recentDetail ? (
                   resentSearch.slice(0,9).map((data, i) => (
                     <ResentSearch key={i}>
-                      
                       <p><img src={require("../img/gps.png")} alt="" />{data}</p>
                       <p onClick={() => dispatch(resentDelete(data))}>x</p>
                     </ResentSearch>
@@ -417,7 +417,6 @@ const Maps = () => {
                   ) : (
                     resentSearch.slice(0,5).map((data, i) => (
                       <ResentSearch key={i}>
-                      
                         <p><img src={require("../img/gps.png")} alt="" />{data}</p>
                         <p onClick={() => dispatch(resentDelete(data))}>x</p>
                       </ResentSearch>
@@ -463,13 +462,13 @@ const SearchList = styled.div`
   margin-top: 50px;
   width: 400px;
   height: 75vh;
-  overflow: scroll;
+  overflow-y: scroll;
 `;
 
 const Menu = styled.div`
   position: relative;
   width: 500px;
-  border: 1px solid gray;
+  /* border: 1px solid gray; */
   div {
     margin: auto;
   }
