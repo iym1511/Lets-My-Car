@@ -3,12 +3,14 @@ import styled from "styled-components";
 import "../css/Maps.css";
 import startMarkerImage from "../img/start.png";
 import endMarkerImage from "../img/end.png";
+import wayPointMarkerImage from "../img/waypoint.png";
 import { useAppDispatch, useAppSelector } from "../hooks/Hooks";
 import {
   resentAllDelete,
   resentDelete,
   resentPush,
 } from "../module/ResentSearch";
+import useInput from "../hooks/useInput";
 
 const Maps = () => {
   const [map, setMap] = useState<any>();
@@ -19,14 +21,18 @@ const Maps = () => {
   // 목적지 장소명
   const [start, setStart] = useState<string>();
   const [end, setEnd] = useState<string>();
+  const [waypoint, setWaypoint] = useState<string>();
   // 목적지 마커
   const [startMarker, setStartMarker] = useState<any>();
   const [endMarker, setEndMarker] = useState<any>();
+  const [waypointMarker, setWaypointMarker] = useState<any>();
   // 목적지 좌표
   const [startplaceX, setStartplaceX] = useState<number | undefined>();
   const [startplaceY, setStartplaceY] = useState<number | undefined>();
   const [endplaceX, setEndplaceX] = useState<number | undefined>();
   const [endplaceY, setEndplaceY] = useState<number | undefined>();
+  const [waypointX, setWaypointX] = useInput();
+  const [waypointY, setWaypointY] = useInput();
 
   // 최근 목록을 펼치기/접기 를 위한 boolean값
   const [focus, setFocus] = useState<boolean>(false);
@@ -123,6 +129,24 @@ const Maps = () => {
       position: endPosition,
       image: endImage,
     });
+
+    // 경유지 마커 설정
+    const wayPointSrc = wayPointMarkerImage;
+    const wayPointSize = new window.kakao.maps.Size(40, 45);
+    const wayPointOption = {
+      offset: new window.kakao.maps.Point(15, 43),
+    };
+    const wayPointPosition = new window.kakao.maps.LatLng(waypointY, waypointX);
+    const wayPointImage = new window.kakao.maps.MarkerImage(
+      wayPointSrc,
+      wayPointSize,
+      wayPointOption
+    );
+    const wayPointMarker = new window.kakao.maps.Marker({
+      map: map,
+      position: wayPointPosition,
+      image: wayPointImage,
+    });
   }, []);
 
   useEffect(() => {
@@ -153,6 +177,18 @@ const Maps = () => {
       endSize,
       endOption
     );
+    // 경유지 마커 설정
+    const wayPointSrc = wayPointMarkerImage;
+    const wayPointSize = new window.kakao.maps.Size(40, 50);
+    const wayPointOption = {
+      offset: new window.kakao.maps.Point(15, 43),
+    };
+    const wayPointPosition = new window.kakao.maps.LatLng(waypointY, waypointX);
+    const wayPointImage = new window.kakao.maps.MarkerImage(
+      wayPointSrc,
+      wayPointSize,
+      wayPointOption
+    );
 
     // 기존에 생성된 마커가 있다면 제거
     if (startMarker) {
@@ -160,6 +196,9 @@ const Maps = () => {
     }
     if (endMarker) {
       endMarker.setMap(null);
+    }
+    if (waypointMarker) {
+      waypointMarker.setMap(null);
     }
 
     // 새로운 마커 생성
@@ -173,15 +212,17 @@ const Maps = () => {
       position: endPosition,
       image: endImage,
     });
+    const newWayPointMarker = new window.kakao.maps.Marker({
+      map: map,
+      position: wayPointPosition,
+      image: wayPointImage,
+    });
 
     // 생성한 마커를 상태 변수로 업데이트
     setStartMarker(newStartMarker);
     setEndMarker(newEndMarker);
-  }, [startplaceX, startplaceY, endplaceX, endplaceY]);
-
-  const sessionArray: string | null = JSON.parse(
-    sessionStorage.getItem("searchArray") || "[]"
-  );
+    setWaypointMarker(newWayPointMarker);
+  }, [startplaceX, startplaceY, endplaceX, endplaceY, waypointX]);
 
   const searchPlaces = (e: React.FormEvent<HTMLFormElement>) => {
     if (!searchKeyword.trim()) {
@@ -192,6 +233,23 @@ const Maps = () => {
 
     const ps = new window.kakao.maps.services.Places();
     ps.keywordSearch(searchKeyword, placesSearchCB);
+  };
+
+  // 히스토리 클릭 영역
+  const resentSearchPlaces = (e: string) => {
+    const ps = new window.kakao.maps.services.Places();
+    ps.keywordSearch(e, resentPlacesSearchCB);
+  };
+  // 히스토리 클릭시 기존input값
+  const resentPlacesSearchCB = (data: any, status: any, pagination: any) => {
+    if (status === window.kakao.maps.services.Status.OK) {
+      displayPlaces(data);
+      displayPagination(pagination);
+    } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+      alert("검색 결과가 존재하지 않습니다.");
+    } else if (status === window.kakao.maps.services.Status.ERROR) {
+      alert("검색 결과 중 오류가 발생했습니다.");
+    }
   };
 
   const placesSearchCB = (data: any, status: any, pagination: any) => {
@@ -298,6 +356,15 @@ const Maps = () => {
     const paginationEl: any = document.getElementById("pagination");
     removeAllChildNodes(paginationEl);
 
+    // 이전 페이지 링크 생성
+    const prevLink = document.createElement("a");
+    prevLink.href = "#";
+    prevLink.innerHTML = "<";
+    prevLink.onclick = () => {
+      pagination.gotoPage(pagination.current - 1);
+    };
+    paginationEl.appendChild(prevLink);
+
     for (let i = 1; i <= pagination.last; i++) {
       const el = document.createElement("a");
       el.href = "#";
@@ -313,6 +380,15 @@ const Maps = () => {
 
       paginationEl.appendChild(el);
     }
+
+    // 다음 페이지 링크 생성
+    const nextLink = document.createElement("a");
+    nextLink.href = "#";
+    nextLink.innerHTML = ">";
+    nextLink.onclick = () => {
+      pagination.gotoPage(pagination.current + 1);
+    };
+    paginationEl.appendChild(nextLink);
   };
 
   const removeAllChildNodes = (el: HTMLElement | null | any) => {
@@ -349,6 +425,7 @@ const Maps = () => {
           <div class="searchStartBox">
             <p>출발지</p>
             <p>도착지</p>
+            <p>경유지</p>
           </div>
         </div>
       </div>`;
@@ -369,13 +446,24 @@ const Maps = () => {
 
     // 도착지
     const endElement: Element | any = el.querySelector(
-      ".searchStartBox p:last-child"
+      ".searchStartBox p:nth-child(2)"
     );
     endElement.addEventListener("click", () => {
       // 처리할 로직 작성
       setEnd(place.place_name);
       setEndplaceY(place.y);
       setEndplaceX(place.x);
+    });
+
+    // 경유지
+    const waypointElement: Element | any = el.querySelector(
+      ".searchStartBox p:nth-child(3)"
+    );
+    waypointElement.addEventListener("click", () => {
+      //처리할 로직 작성
+      setWaypoint(place.place_name);
+      setWaypointY(place.y);
+      setWaypointX(place.x);
     });
 
     // 장소 항목 클릭 이벤트 추가
@@ -404,28 +492,44 @@ const Maps = () => {
                   ref={searchRef}
                 />
                 <ResentSearchbox isActive={focus}>
-                  <p className="ResentAlldelete" >
-                      히스토리
-                  </p>
-                  {recentDetail ? (
-                  resentSearch.slice(0,9).map((data, i) => (
-                    <ResentSearch key={i}>
-                      <p><img src={require("../img/gps.png")} alt="" />{data}</p>
-                      <p onClick={() => dispatch(resentDelete(data))}>x</p>
-                    </ResentSearch>
-                  ))
-                  ) : (
-                    resentSearch.slice(0,5).map((data, i) => (
-                      <ResentSearch key={i}>
-                        <p><img src={require("../img/gps.png")} alt="" />{data}</p>
-                        <p onClick={() => dispatch(resentDelete(data))}>x</p>
-                      </ResentSearch>
-                    ))
-                  )
-                  }
+                  <p className="ResentAlldelete">히스토리</p>
+                  {recentDetail
+                    ? resentSearch.slice(0, 9).map((data, i) => (
+                        <ResentSearch key={i}>
+                          <p
+                            onClick={() => {
+                              resentSearchPlaces(data);
+                            }}
+                          >
+                            <img src={require("../img/gps.png")} alt="" />
+                            {data}
+                          </p>
+                          <p onClick={() => dispatch(resentDelete(data))}>x</p>
+                        </ResentSearch>
+                      ))
+                    : resentSearch.slice(0, 5).map((data, i) => (
+                        <ResentSearch key={i}>
+                          <p
+                            onClick={() => {
+                              resentSearchPlaces(data);
+                            }}
+                          >
+                            <img src={require("../img/gps.png")} alt="" />
+                            {data}
+                          </p>
+                          <p onClick={() => dispatch(resentDelete(data))}>x</p>
+                        </ResentSearch>
+                      ))}
                   <ResentDetailbox>
-                    <button type="button" onClick={() => setRecentDetail(!recentDetail)}>더보기</button>
-                    <span onClick={() => dispatch(resentAllDelete())}>최근기록 전체삭제</span>
+                    <button
+                      type="button"
+                      onClick={() => setRecentDetail(!recentDetail)}
+                    >
+                      더보기
+                    </button>
+                    <span onClick={() => dispatch(resentAllDelete())}>
+                      최근기록 전체삭제
+                    </span>
                   </ResentDetailbox>
                 </ResentSearchbox>
                 <button ref={searchListRef}>
@@ -440,6 +544,7 @@ const Maps = () => {
         <Map id="map"></Map>
       </MapBox>
       <SearchStartbox>출발지 : {start}</SearchStartbox>
+      {/* 경유지 추가하기 */}
       <SearchEndbox>도착지 : {end}</SearchEndbox>
     </div>
   );
@@ -566,19 +671,19 @@ const ResentSearchbox = styled.div<{ isActive: boolean }>`
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
     rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
   display: ${({ isActive }) => (isActive ? "" : "none")};
-  button{
+  button {
     color: gray;
     margin-left: 10px;
     margin-bottom: 5px;
   }
-  .ResentAlldelete{
+  .ResentAlldelete {
     width: 115px;
     margin-left: 15px;
     color: gray;
     font-size: 15px;
     margin-bottom: -10px;
   }
-  span{
+  span {
     color: gray;
     font-size: 13px;
     margin-left: 170px;
@@ -592,7 +697,7 @@ const ResentDetailbox = styled.div`
   padding-top: 5px;
   background-color: #f5f5f5;
   margin-top: 20px !important;
-`
+`;
 
 const ResentSearch = styled.div`
   display: flex;
@@ -602,6 +707,8 @@ const ResentSearch = styled.div`
   height: 35px;
   p {
     cursor: pointer;
+    /* border: 1px solid red; */
+    height: 30px;
   }
   p:nth-child(2) {
     margin-top: 25px;
@@ -609,8 +716,7 @@ const ResentSearch = styled.div`
   img {
     width: 20px;
     height: 20px;
-    padding-bottom:4px;
+    padding-bottom: 4px;
     margin-right: 20px;
   }
 `;
-

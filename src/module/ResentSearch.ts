@@ -12,6 +12,8 @@ export const ResentSlice = createSlice({
       if(searchTag){
         const filteredState = state.filter((state) => state !== action.payload);
         return [action.payload, ...filteredState];
+      }else if(action.payload == ""){
+        // 히스토리를 눌렀을때 값이 안들어가게 하기위한 else if
       }else{
         state.unshift(action.payload);
       }
